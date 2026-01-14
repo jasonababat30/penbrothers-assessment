@@ -34,7 +34,7 @@ For connecting to Supabase, I used my `SERVICE ROLE` key instead of the `ANON KE
 
 Also, I don't have any migration scripts yet to populate the database. I do it manually on my end by doing these following steps:
 
-1. In your .env file, add the insert the necessary values for these env variables:
+1. In your .env file, insert the necessary values for these env variables:
     - `SUPABASE_URL`
     - `SUPABASE_SERVICE_ROLE_KEY`
 
