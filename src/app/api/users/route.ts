@@ -28,7 +28,8 @@ export async function GET() {
         return Response.json(
             {
                 data,
-                count
+                count,
+                message: "Users fetched successfully"
             },
             {
                 status: 200,

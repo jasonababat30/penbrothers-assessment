@@ -14,6 +14,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { ApiResponse } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import moment from "moment"
 
 interface User {
     id: string;
@@ -25,6 +26,8 @@ interface User {
 const SyncDashboardComponent = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [isFetchingUsers, setIsFetchingUsers] = useState<boolean>(false);
+    const [userIdToBeSynced, setUserIdToBeSynced] = useState<string>("");
+    const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -42,7 +45,43 @@ const SyncDashboardComponent = () => {
         }
 
         fetchUsers();
-    },[])
+    },[]);
+
+    const handleSyncUser = async (userId: string) => {
+        try {
+            setUserIdToBeSynced(userId);
+            setIsSyncing(true);
+            
+            setTimeout(async () => {
+                const { data: sync_user_response } = await axios.patch<ApiResponse<User>>(
+                    `/api/users/${userId}/sync-user`,
+                    {}
+                );
+
+                const { data: synced_user } = sync_user_response;
+
+                setIsFetchingUsers(true);
+                setUserIdToBeSynced("");
+                setIsSyncing(false);
+                
+                setUsers(prev => {
+                    const notYetSyncedUsers = prev.filter(user => user.id !== userId);
+
+                    return [
+                        ...notYetSyncedUsers,
+                        synced_user
+                    ]
+                });
+                setIsFetchingUsers(false);
+            }, 3000)
+
+        } catch (error) {
+            setUserIdToBeSynced("");
+            setIsSyncing(false);
+            console.error("🔖 Syncing User Error: ", error);
+            toast.error("Something went wrong with syncing user");
+        }
+    }
 
     return (
         <div>
@@ -90,13 +129,18 @@ const SyncDashboardComponent = () => {
                                                 (
                                                     <Button 
                                                         onClick={() => {
-                                                            toast("👩‍🦳") 
+                                                            handleSyncUser(user.id)
                                                         }}
+                                                        disabled={isSyncing}
                                                     >
-                                                        Sync Data
+                                                        {
+                                                            userIdToBeSynced === user.id && isSyncing
+                                                            ? "Syncing User..."
+                                                            : "Sync User"
+                                                        }
                                                     </Button>
                                                 ) :
-                                                user.synced_at.toLocaleDateString()
+                                                moment(user.synced_at).format("MMM DD, YYYY")
                                             }
                                         </TableCell>
                                     </TableRow>
