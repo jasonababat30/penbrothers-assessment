@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -28,8 +28,13 @@ const SyncDashboardComponent = () => {
     const [isFetchingUsers, setIsFetchingUsers] = useState<boolean>(false);
     const [userIdToBeSynced, setUserIdToBeSynced] = useState<string>("");
     const [isSyncing, setIsSyncing] = useState<boolean>(false);
+    const hasFetched = useRef(false);
+
 
     useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+
         const fetchUsers = async () => {
             setIsFetchingUsers(true);
             try {
@@ -84,74 +89,69 @@ const SyncDashboardComponent = () => {
     }
 
     return (
-        <div>
-            <div>User Dashboard</div>
-            <Table>
-                <TableHeader>
+        <div className="p-6 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">User Sync Dashboard</h2>
+
+            <Table className="border rounded-lg overflow-hidden">
+                <TableHeader className="bg-gray-50">
                     <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Sync Status</TableHead>
+                        <TableHead className="text-left">Name</TableHead>
+                        <TableHead className="text-left">Email</TableHead>
+                        <TableHead className="text-left">Sync Status</TableHead>
                     </TableRow>
                 </TableHeader>
 
-                {
-                    isFetchingUsers
-                    ? (
-                        <TableBody>
-                            {
-                                Array.from({ length: 5 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>
-                                            <Skeleton className="w-30 h-8"/>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Skeleton className="w-60 h-8"/>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Skeleton className="w-25 h-8"/>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            }
-                        </TableBody>
-                    )
-                    : (
-                        <TableBody>
-                            {
-                                users.map(user => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>{user.name}</TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell>
-                                            {
-                                                !user.synced_at ?
-                                                (
-                                                    <Button 
-                                                        onClick={() => {
-                                                            handleSyncUser(user.id)
-                                                        }}
-                                                        disabled={isSyncing}
-                                                    >
-                                                        {
-                                                            userIdToBeSynced === user.id && isSyncing
-                                                            ? "Syncing User..."
-                                                            : "Sync User"
-                                                        }
-                                                    </Button>
-                                                ) :
-                                                moment(user.synced_at).format("MMM DD, YYYY")
-                                            }
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            }
-                        </TableBody>
-                    )
-                }
+                {isFetchingUsers ? (
+                    <TableBody>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <TableRow key={index} className="hover:bg-gray-50">
+                                <TableCell>
+                                    <Skeleton className="w-32 h-6 rounded-md" />
+                                </TableCell>
+                                <TableCell>
+                                    <Skeleton className="w-48 h-6 rounded-md" />
+                                </TableCell>
+                                <TableCell>
+                                    <Skeleton className="w-24 h-6 rounded-md" />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                ) : users.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500 font-medium">
+                        No users available.
+                    </div>
+                ) : (
+                    <TableBody>
+                        {users.map(user => (
+                            <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
+                                <TableCell className="font-medium">{user.name}</TableCell>
+                                <TableCell className="text-gray-600">{user.email}</TableCell>
+                                <TableCell>
+                                    {!user.synced_at ? (
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            onClick={() => handleSyncUser(user.id)}
+                                            disabled={isSyncing}
+                                        >
+                                            {userIdToBeSynced === user.id && isSyncing
+                                                ? "Syncing..."
+                                                : "Sync User"}
+                                        </Button>
+                                    ) : (
+                                        <span className="text-gray-500">
+                                            {moment(user.synced_at).format("MMM DD, YYYY")}
+                                        </span>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                )}
             </Table>
         </div>
-    )
+    );
 }
 
 export default SyncDashboardComponent;
