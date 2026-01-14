@@ -46,6 +46,8 @@ Also, I don't have any migration scripts yet to populate the database. I do it m
 
 3. Just create 2 or more records manually and at least 1 of the created records should have a null value to its `synced_at` property in order to test the `sync` button
 
+4. I also used AI such as ChatGPT for the basic questions like how to create the initial boilerplates and also I have in my VSCode the CoPilot extension like inline suggestions so that I would just skip writing all of my codes as long as what the CoPilot is suggesting is also what comes into my mind.
+
 ## Developer Notes
 
 I hope you'll consider my work. Thank you and have a good day!
