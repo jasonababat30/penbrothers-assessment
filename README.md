@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`Supabase`].
 
 ## Getting Started
 
@@ -16,21 +16,36 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Go to `/sync-dashboard' to see the page.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Packages and Libraries
 
-## Learn More
+I used the following packages and libraries:
+- [Axios](https://axios-http.com/docs/intro) - to call for APIs
+- [Supabase SDK](https://supabase.com/docs/reference/javascript/introduction) - to request anything to Supabase Database
+- [Shadcn Components](https://ui.shadcn.com/) - this is for the buttons, table, skeleton, etc.
+- [Moment](https://momentjs.com/) - this is for formatting `synced_at` value of a User to a readable Date format
 
-To learn more about Next.js, take a look at the following resources:
+## Architectural and Design pattern
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+I used the basic hooks for react. I know there are other libraries catering for fetching and mutating such records with advanced hooks to make a dev's life easier but I stick to the rudimentary.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For connecting to Supabase, I used my `SERVICE ROLE` key instead of the `ANON KEY` just to bypass any mutation requirements.
 
-## Deploy on Vercel
+Also, I don't have any migration scripts yet to populate the database. I do it manually on my end by doing these following steps:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. In your .env file, add the insert the necessary values for these env variables:
+    - `SUPABASE_URL`
+    - `SUPABASE_SERVICE_ROLE_KEY`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. In your Supabase Dashboard, create a `users` table in the `public` schema with the following columns:
+    - `id` = uuid, primary
+    - `name` = text
+    - `email` = text, unique
+    - `synced_at` = timestamp, nullable
+
+3. Just create 2 or more records manually and at least 1 of the created records should have a null value to its `synced_at` property in order to test the `sync` button
+
+## Developer Notes
+
+I hope you'll consider my work. Thank you and have a good day!
